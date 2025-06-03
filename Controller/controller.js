@@ -1,3 +1,3 @@
 exports.startServer = (req, res)=>{
-    res.send('server getting hotter')
+    res.send('LuxeStay server getting hotter')
 }
