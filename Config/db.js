@@ -12,7 +12,7 @@ const client = new MongoClient(uri, {
 });
 const connectDB = () => {
     try {
-        db = client.db('luxe_stay_db');
+        db = client.db('hotelDB');
         console.log('MongoDB is connected✅');
     } catch (error) {
         console.error('MongoDB connection failed:', err);
