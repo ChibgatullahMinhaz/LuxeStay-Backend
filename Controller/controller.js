@@ -136,7 +136,6 @@ exports.makeUpdateBookedDate = async (req, res) => {
         const bookingsCollection = db.collection('bookings')
         const id = req.body.roomId
         const updatedDate = req.body;
-console.log(updatedDate)
         const userEmail = req.body.email;
         const validEmail = req.user.email;
 
@@ -157,5 +156,24 @@ console.log(updatedDate)
         res.status(200).send(result)
     } catch (error) {
         res.status(500).json({ error: 'Fail To update booked date' })
+    }
+}
+
+exports.deleteBooking = async (req, res) => {
+    const bookingId = req.params.id;
+    try {
+        const db = getDB();
+        const bookingsCollection = db.collection('bookings')
+        const hotelCollection = db.collection('hotels');
+
+        const result = await bookingsCollection.deleteOne({ roomId: bookingId });
+        const query = { id: bookingId }
+        const updateDoc = { $set: { isAvailable: true } }
+
+        await hotelCollection.updateOne(query, updateDoc)
+        res.status(200).send(result)
+
+    } catch (error) {
+        res.status(500).send(error, 'Failed to Delete Booking')
     }
 }

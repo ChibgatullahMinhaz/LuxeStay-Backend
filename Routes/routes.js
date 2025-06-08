@@ -1,5 +1,5 @@
 const express = require('express');
-const { startServer, getAllHotel, getAllReviews, getFeaturedRooms, getMyBookings, makeBooking, makeReview, makeUpdateBookedDate } = require('../Controller/controller');
+const { startServer, getAllHotel, getAllReviews, getFeaturedRooms, getMyBookings, makeBooking, makeReview, makeUpdateBookedDate, deleteBooking } = require('../Controller/controller');
 const verifyFirebaseToken = require('../middleware/verifyToken');
 const routes = express.Router();
 
@@ -17,4 +17,7 @@ routes.post('/give/review',verifyFirebaseToken, makeReview);
 
 // patch
 routes.patch('/booking/date/update', verifyFirebaseToken, makeUpdateBookedDate)
+
+//delete
+routes.delete('/api/delete/booking/:id',verifyFirebaseToken, deleteBooking)
 module.exports = routes;
