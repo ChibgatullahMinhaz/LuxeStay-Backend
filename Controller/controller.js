@@ -56,11 +56,30 @@ exports.getFeaturedRooms = async (req, res) => {
 exports.makeBooking = async (req, res) => {
     try {
         const db = getDB();
+        const bookingsCollection = db.collection('bookings')
+        const hotelCollection = db.collection('hotels');
 
-        const reviewCollection = db.collection("roomsReviews");
-        const roomsCollection = db.collection("hotels");
+        const bookedData = req.body;
+        const userEmail = req.body.email;
+        const validEmail = req.user.email;
+
+
+        if (!bookedData || !userEmail || bookedData.roomId) {
+            return res.status(400).json({ error: "Invalid booking data" });
+        }
+
+        if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
+            return res.status(401).json({ error: "Unauthorized: Invalid User" });
+        }
+
+        bookedData.createdAt = new Date();
+        const result = await bookingsCollection.insertOne(bookedData);
+        const query = { id: bookedData.roomId }
+        const updateDoc = { $set: { isAvailable: false } }
+        await hotelCollection.updateOne(query, updateDoc)
+        res.status(200).json(result)
     } catch (error) {
-
+        res.status(500).json({ message: "Failed to make booking", error });
     }
 }
 
