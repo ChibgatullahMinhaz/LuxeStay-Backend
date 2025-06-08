@@ -22,13 +22,15 @@ exports.makeReview = async (req, res) => {
         const db = getDB()
         const reviewCollection = db.collection('roomsReviews');
         const reviewData = req.body;
+        console.log(reviewData)
         const userEmail = req.body.email;
         const validEmail = req.user.email;
-
+        console.log(userEmail, validEmail)
         if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
             return res.status(401).json({ error: "Unauthorized: Invalid User" });
         }
         const result = await reviewCollection.insertOne(reviewData)
+        console.log(result)
         res.status(200).send(result);
     } catch (error) {
         res.status(500).json({ error: 'Failed to add review data.' })
@@ -128,3 +130,32 @@ exports.getMyBookings = async (req, res) => {
     }
 }
 
+exports.makeUpdateBookedDate = async (req, res) => {
+    try {
+        const db = getDB();
+        const bookingsCollection = db.collection('bookings')
+        const id = req.body.roomId
+        const updatedDate = req.body;
+console.log(updatedDate)
+        const userEmail = req.body.email;
+        const validEmail = req.user.email;
+
+        if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
+            return res.status(401).json({ error: "Unauthorized: Invalid User" });
+        }
+        const createdAt = new Date();
+        const query = {
+            roomId: id
+        }
+        const updateDoc = {
+            $set: {
+                createdAt: createdAt,
+                bookingDate: updatedDate?.newDate
+            }
+        }
+        const result = await bookingsCollection.updateOne(query, updateDoc)
+        res.status(200).send(result)
+    } catch (error) {
+        res.status(500).json({ error: 'Fail To update booked date' })
+    }
+}
