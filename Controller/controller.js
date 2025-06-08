@@ -22,7 +22,6 @@ exports.makeReview = async (req, res) => {
         const db = getDB()
         const reviewCollection = db.collection('roomsReviews');
         const reviewData = req.body;
-        console.log(reviewData)
         const userEmail = req.body.email;
         const validEmail = req.user.email;
         console.log(userEmail, validEmail)
