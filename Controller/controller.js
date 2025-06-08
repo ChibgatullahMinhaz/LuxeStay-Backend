@@ -63,21 +63,27 @@ exports.makeBooking = async (req, res) => {
         const userEmail = req.body.email;
         const validEmail = req.user.email;
 
-
-        if (!bookedData || !userEmail || bookedData.roomId) {
-            return res.status(400).json({ error: "Invalid booking data" });
-        }
-
         if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
             return res.status(401).json({ error: "Unauthorized: Invalid User" });
+        }
+        const room = await hotelCollection.findOne({ id: bookedData.roomId })
+
+        if (!room) {
+            return res.status(404).send('no room find')
+        }
+        if (room.isAvailable === false) {
+            return res.status(400).send('room is not available')
         }
 
         bookedData.createdAt = new Date();
         const result = await bookingsCollection.insertOne(bookedData);
+
         const query = { id: bookedData.roomId }
         const updateDoc = { $set: { isAvailable: false } }
+
         await hotelCollection.updateOne(query, updateDoc)
         res.status(200).json(result)
+
     } catch (error) {
         res.status(500).json({ message: "Failed to make booking", error });
     }
@@ -89,12 +95,15 @@ exports.getMyBookings = async (req, res) => {
         const bookingsCollection = db.collection('bookings')
         const userEmail = req.query.email;
         const validEmail = req.user.email;
-        const query = { email: userEmail }
+
         if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
             return res.status(401).json({ error: "Unauthorized: Invalid User" });
         }
+
+        const query = { email: userEmail }
         const result = await bookingsCollection.find(query).toArray();
         res.status(200).json(result)
+
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch review data." });
     }
