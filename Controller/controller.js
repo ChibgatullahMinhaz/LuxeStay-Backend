@@ -15,6 +15,25 @@ exports.getAllHotel = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch hotel data." });
     }
 }
+
+
+exports.makeReview = async (req, res) => {
+    try {
+        const db = getDB()
+        const reviewCollection = db.collection('roomsReviews');
+        const reviewData = req.body;
+        const userEmail = req.body.email;
+        const validEmail = req.user.email;
+
+        if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
+            return res.status(401).json({ error: "Unauthorized: Invalid User" });
+        }
+        const result = await reviewCollection.insertOne(reviewData)
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add review data.' })
+    }
+}
 exports.getAllReviews = async (req, res) => {
     try {
         const db = getDB();
@@ -105,7 +124,7 @@ exports.getMyBookings = async (req, res) => {
         res.status(200).json(result)
 
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch review data." });
+        res.status(500).json({ error: "Failed to fetch bookings data." });
     }
 }
 
