@@ -24,12 +24,10 @@ exports.makeReview = async (req, res) => {
         const reviewData = req.body;
         const userEmail = req.body.email;
         const validEmail = req.user.email;
-        console.log(userEmail, validEmail)
         if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
             return res.status(401).json({ error: "Unauthorized: Invalid User" });
         }
         const result = await reviewCollection.insertOne(reviewData)
-        console.log(result)
         res.status(200).send(result);
     } catch (error) {
         res.status(500).json({ error: 'Failed to add review data.' })
