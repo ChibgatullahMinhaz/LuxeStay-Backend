@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Elena Park",
+    "rating": 4,
+    "comment": "Chic and compact. Loved the city view from the balcony. Perfect for solo travelers.",
+    "date": "2025-06-09T15:05:00.000Z",
+    "roomId": "12",
+    "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?fm=jpg&q=60&w=300",
+    "email": "elena.park@example.com",
+    "room": "Urban Studio"
+  },
+  {
+    "name": "Jordan Miles",
+    "rating": 5,
+    "comment": "Excellent location in the heart of the city. Clean and modern interiors. Will book again!",
+    "date": "2025-06-08T18:30:00.000Z",
+    "roomId": "12",
+    "avatar": "https://images.unsplash.com/photo-1603415526960-f8f0a6a6789b?fm=jpg&q=60&w=300",
+    "email": "jordan.miles@example.com",
+    "room": "Urban Studio"
+  }
+]

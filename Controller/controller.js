@@ -55,20 +55,30 @@ exports.getFeaturedRooms = async (req, res) => {
         const reviewCollection = db.collection("roomsReviews");
         const roomsCollection = db.collection("hotels");
 
-        const reviews = await reviewCollection.find().sort({ rating: -1 }).limit(6).toArray();
+        const topRooms = await reviewCollection.aggregate([
+            {
+                $group: {
+                    _id: "$roomId",
+                    avgRating: { $avg: "$rating" }
+                }
+            },
+            { $sort: { avgRating: -1 } }, 
+            { $limit: 6 } 
+        ]).toArray();
 
-        const roomIds = [...new Set(reviews.map(review => review.roomId))];
+        const roomIds = topRooms.map(room => room._id);
 
         const result = await roomsCollection.find({
-            id: { $in: roomIds.map(id => id) }
+            id: { $in: roomIds }
         }).toArray();
-        res.send(result);
 
+        res.send(result);
     } catch (error) {
         console.error("Error fetching featured rooms:", error);
         res.status(500).json({ error: "Failed to fetch featured rooms." });
     }
 };
+
 
 
 exports.makeBooking = async (req, res) => {
