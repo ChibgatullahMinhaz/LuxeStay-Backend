@@ -4,10 +4,8 @@ const { ObjectId } = require('mongodb');
 const { getDB } = require('../Config/db');
 
 const autoCancel = () => {
-    cron.schedule('*/5 * * * *', async () => {
+    cron.schedule('0 0 * * *', async () => {
         try {
-            console.log('Running auto-cancel job every 5 minutes...');
-
             const db = getDB();
             const bookingsCollection = db.collection('bookings');
             const hotelCollection = db.collection('hotels');
