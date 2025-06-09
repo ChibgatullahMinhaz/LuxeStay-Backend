@@ -184,3 +184,25 @@ exports.deleteBooking = async (req, res) => {
         res.status(500).send(error, 'Failed to Delete Booking')
     }
 }
+
+
+exports.getFilteredRooms = async (req, res) => {
+  try {
+    const db = getDB();
+    const roomsCollection = db.collection("hotels");
+
+    const min = parseInt(req.query.min) || 0;
+    const max = parseInt(req.query.max) || Infinity;
+
+    const query = {
+      price: { $gte: min, $lte: max }
+    };
+
+    const rooms = await roomsCollection.find(query).toArray();
+
+    res.send(rooms);
+  } catch (error) {
+    console.error("Error filtering rooms:", error);
+    res.status(500).send("Server Error");
+  }
+};

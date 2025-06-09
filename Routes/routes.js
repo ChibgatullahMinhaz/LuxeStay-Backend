@@ -1,5 +1,5 @@
 const express = require('express');
-const { startServer, getAllHotel, getAllReviews, getFeaturedRooms, getMyBookings, makeBooking, makeReview, makeUpdateBookedDate, deleteBooking } = require('../Controller/controller');
+const { startServer, getAllHotel, getAllReviews, getFeaturedRooms, getMyBookings, makeBooking, makeReview, makeUpdateBookedDate, deleteBooking, getFilteredRooms } = require('../Controller/controller');
 const verifyFirebaseToken = require('../middleware/verifyToken');
 const routes = express.Router();
 
@@ -10,6 +10,7 @@ routes.get('/all/hotels', getAllHotel)
 routes.get('/all/reviews', getAllReviews)
 routes.get('/topRated/featured', getFeaturedRooms)
 routes.get('/rooms/myBookings', verifyFirebaseToken, getMyBookings)
+routes.get("/rooms", getFilteredRooms);
 
 // posts APIs
 routes.post('/room/bookings', verifyFirebaseToken, makeBooking)
