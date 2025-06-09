@@ -62,8 +62,8 @@ exports.getFeaturedRooms = async (req, res) => {
                     avgRating: { $avg: "$rating" }
                 }
             },
-            { $sort: { avgRating: -1 } }, 
-            { $limit: 6 } 
+            { $sort: { avgRating: -1 } },
+            { $limit: 6 }
         ]).toArray();
 
         const roomIds = topRooms.map(room => room._id);
@@ -94,6 +94,7 @@ exports.makeBooking = async (req, res) => {
         if (userEmail.toLowerCase() !== validEmail.toLowerCase()) {
             return res.status(401).json({ error: "Unauthorized: Invalid User" });
         }
+
         const room = await hotelCollection.findOne({ id: bookedData.roomId })
 
         if (!room) {
@@ -103,15 +104,33 @@ exports.makeBooking = async (req, res) => {
             return res.status(400).send('room is not available')
         }
 
+
+        const existingBookings = await bookingsCollection.find({
+            roomId: req.body.roomId,
+            $or: [
+                {
+                    startDate: {
+                        $lte: bookedData.endDate
+
+                    },
+                    endDate: {
+                        $gte: bookedData.startDate
+                    }
+                }
+            ]
+        }).toArray()
+
         bookedData.createdAt = new Date();
-        const result = await bookingsCollection.insertOne(bookedData);
+        if (existingBookings.length === 0) {
+            const result = await bookingsCollection.insertOne(bookedData);
+            const query = { id: bookedData.roomId }
+            const updateDoc = { $set: { isAvailable: false } }
 
-        const query = { id: bookedData.roomId }
-        const updateDoc = { $set: { isAvailable: false } }
-
-        await hotelCollection.updateOne(query, updateDoc)
-        res.status(200).json(result)
-
+            await hotelCollection.updateOne(query, updateDoc)
+            res.status(200).json(result)
+        } else {
+            res.status(400).send({ message: "room already Booked in this date range" })
+        }
     } catch (error) {
         res.status(500).json({ message: "Failed to make booking", error });
     }
@@ -143,6 +162,10 @@ exports.makeUpdateBookedDate = async (req, res) => {
         const bookingsCollection = db.collection('bookings')
         const id = req.body.roomId
         const updatedDate = req.body;
+        const { newDate } = updatedDate;
+        const startDate = newDate[0].startDate;
+        const endDate = newDate[0].endDate;
+
         const userEmail = req.body.email;
         const validEmail = req.user.email;
 
@@ -156,7 +179,8 @@ exports.makeUpdateBookedDate = async (req, res) => {
         const updateDoc = {
             $set: {
                 createdAt: createdAt,
-                bookingDate: updatedDate?.newDate
+                startDate,
+                endDate
             }
         }
         const result = await bookingsCollection.updateOne(query, updateDoc)
@@ -174,6 +198,7 @@ exports.deleteBooking = async (req, res) => {
         const hotelCollection = db.collection('hotels');
 
         const result = await bookingsCollection.deleteOne({ roomId: bookingId });
+
         const query = { id: bookingId }
         const updateDoc = { $set: { isAvailable: true } }
 
@@ -187,22 +212,22 @@ exports.deleteBooking = async (req, res) => {
 
 
 exports.getFilteredRooms = async (req, res) => {
-  try {
-    const db = getDB();
-    const roomsCollection = db.collection("hotels");
+    try {
+        const db = getDB();
+        const roomsCollection = db.collection("hotels");
 
-    const min = parseInt(req.query.min) || 0;
-    const max = parseInt(req.query.max) || Infinity;
+        const min = parseInt(req.query.min) || 0;
+        const max = parseInt(req.query.max) || Infinity;
 
-    const query = {
-      price: { $gte: min, $lte: max }
-    };
+        const query = {
+            price: { $gte: min, $lte: max }
+        };
 
-    const rooms = await roomsCollection.find(query).toArray();
+        const rooms = await roomsCollection.find(query).toArray();
 
-    res.send(rooms);
-  } catch (error) {
-    console.error("Error filtering rooms:", error);
-    res.status(500).send("Server Error");
-  }
+        res.send(rooms);
+    } catch (error) {
+        console.error("Error filtering rooms:", error);
+        res.status(500).send("Server Error");
+    }
 };

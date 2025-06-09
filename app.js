@@ -5,9 +5,13 @@ const app = express();
 const routes = require('./Routes/routes');
 const cors = require('cors');
 const { connectDB } = require('./Config/db');
+const autoCancel = require('./Auto/autoCancelBooking');
 
 // connect db
 connectDB()
+
+// auto expire
+autoCancel()
 
 // middle ware 
 app.use(cors())
